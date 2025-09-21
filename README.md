@@ -9,10 +9,6 @@ cd PiFMX_VER/pifmxv(ver)/src
 make clean
 make
 ```
-PiFMX launch:  
-```
-sudo ./pi_fm_x
-```
 
 # Version
 * **V1** - Support **ECC**
