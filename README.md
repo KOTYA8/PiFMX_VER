@@ -12,4 +12,4 @@ make
 
 # Version
 * **V1** - Support **ECC**
-* **V2** - Support **PTY**. You can also now set **TP** and **TA**. Management has appeared via `rds_ctl`: **PI, PTY, TP, ECC**. 
+* **V2** - Support **PTY**. You can also now set **TP** and **TA**. Management has appeared via `rds_ctl`: **PI, PTY, TP, ECC**
