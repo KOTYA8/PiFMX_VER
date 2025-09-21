@@ -59,7 +59,7 @@ Original repository: [PiFmRds](github.com/ChristopheJacquet/PiFmRds)
 **M/S** (`MS`) **RDS_CTL** - ❌ not realized   
 
 **ECC** (`-ecc`) **GLOBAL** - ✅ realized  
-**ECC** (`ECC`) **RDS_CTL** - ❌ not realized  
+**ECC** (`ECC`) **RDS_CTL** - ✅ realized 
 
 **LIC** (`-lic`) **GLOBAL** - ❌ not realized  
 **LIC** (`LIC`) **RDS_CTL** - ❌ not realized  
@@ -113,7 +113,7 @@ sudo ./pi_fm_x
 # General Arguments
 By default the PS changes back and forth between `RPi-Live` and a sequence number, starting at `00000000`. The PS changes around one time per second.  
 ```bash
-sudo ./pi_fm_x [-freq freq] [-audio file] [-ppm ppm_error] [-pi pi_code] [-ps ps_text] [-rt rt_text] [-ecc XX] [-pty XX] [-tp X] [-ta X]
+sudo ./pi_fm_x [-freq freq] [-audio file] [-ppm ppm_error] [-pi pi_code] [-ps ps_text] [-rt rt_text] [-ecc code] [-pty code] [-tp 0|1] [-ta 0|1]
 ```
 All arguments are optional:  
 
@@ -221,4 +221,4 @@ I also have a special script that allows you to use different PS and RT modes:
 All previous versions are available in the repository: [PiFMX_VER](https://github.com/KOTYA8/PiFMX_VER)  
 
 ### **Currently**  
-* V2 - Support **PTY**. You can also now set **TP** and **TA**. Management has appeared via rds_ctl: **PI, PTY, TP, ECC**.  
+* V2 - Support **PTY**. You can also now set **TP** and **TA**. Management has appeared via `rds_ctl`: **PI, PTY, TP, ECC**.  
