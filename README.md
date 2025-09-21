@@ -5,7 +5,7 @@ This repository is presented, all versions of [PiFMX](https://github.com/KOTYA8/
 Installation PiFMX:  
 ```bash
 git clone https://github.com/KOTYA8/PiFMX_VER.git
-cd PiFMX_VER/pifmxv1/src
+cd PiFMX_VER/pifmxv(ver)/src
 make clean
 make
 ```
