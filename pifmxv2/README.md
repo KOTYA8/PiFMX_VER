@@ -47,7 +47,7 @@ Original repository: [PiFmRds](github.com/ChristopheJacquet/PiFmRds)
 **TP** (`TP`) **RDS_CTL** - ✅ realized  
 
 **TA** (`-ta`) **GLOBAL** - ✅ realized  
-**TA** (`ta`) **RDS_CTL** - ✅ realized  
+**TA** (`TA`) **RDS_CTL** - ✅ realized  
 
 **AF(A)** (`-afa`) **GLOBAL** - ❌ not realized   
 **AF(A)** (`AFA`) **RDS_CTL** - ❌ not realized  
