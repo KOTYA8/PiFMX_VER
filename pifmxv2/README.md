@@ -55,7 +55,7 @@ Original repository: [PiFmRds](github.com/ChristopheJacquet/PiFmRds)
 **AF(B)** (`-afb`) **GLOBAL** - ❌ not realized   
 **AF(B)** (`AFB`) **RDS_CTL** - ❌ not realized   
 
-**M/S** (`-MS`) **GLOBAL** - ❌ not realized   
+**M/S** (`-ms`) **GLOBAL** - ❌ not realized   
 **M/S** (`MS`) **RDS_CTL** - ❌ not realized   
 
 **ECC** (`-ecc`) **GLOBAL** - ✅ realized  
