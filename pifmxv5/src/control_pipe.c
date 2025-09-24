@@ -157,6 +157,20 @@ int poll_control_pipe() {
         return CONTROL_PIPE_LIC_SET;
     }
 
+    if (strncmp(res, "RTS ", 4) == 0) {
+        char *arg = res + 4;
+        int mode = 0; // По умолчанию A
+        if (strcmp(arg, "B") == 0) {
+            mode = 1;
+        } else if (strcmp(arg, "AB") == 0) {
+            mode = 2;
+        }
+        set_rds_rt_channel(mode);
+        printf("RT Channel set to: %s\n", arg);
+        fflush(stdout);
+        return CONTROL_PIPE_RTS_SET;
+    }
+
     if (strncmp(res, "PIN ", 4) == 0) {
         char *arg = res + 4;
         int day, hour, minute;

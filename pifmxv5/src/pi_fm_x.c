@@ -228,8 +228,7 @@ map_peripheral(uint32_t base, uint32_t len)
 #define DATA_SIZE 5000
 
 
-int tx(uint32_t carrier_freq, char *audio_file, uint16_t pi, char *ps, char *rt, char *ptyn, uint8_t pty, int tp, int ta, int ms, uint8_t di_flags, float ppm, char *control_pipe, int lic, int pin_day, int pin_hour, int pin_minute) {
-    // Catch all signals possible - it is vital we kill the DMA engine
+int tx(uint32_t carrier_freq, char *audio_file, uint16_t pi, char *ps, char *rt, char *ptyn, uint8_t pty, int tp, int ta, int ms, uint8_t di_flags, float ppm, char *control_pipe, int lic, int pin_day, int pin_hour, int pin_minute, int rt_channel_mode) {    // Catch all signals possible - it is vital we kill the DMA engine
     // on process exit!
     for (int i = 0; i < 64; i++) {
         struct sigaction sa;
@@ -369,6 +368,7 @@ int tx(uint32_t carrier_freq, char *audio_file, uint16_t pi, char *ps, char *rt,
     char myps[9] = {0};
     set_rds_pi(pi);
     set_rds_rt(rt);
+    set_rds_rt_channel(rt_channel_mode);
     set_rds_pty(pty);
     set_rds_tp(tp);
     set_rds_ta(ta);
@@ -472,6 +472,7 @@ int main(int argc, char **argv) {
     char *ps = NULL;
     char *rt = "PiFmX: FM transmitter and full RDS functions";
     char *ptyn = NULL;
+    int rt_channel_mode = 0;
     uint16_t pi = 0x1234;
     uint8_t pty = 0;
     int tp_flag = 0;
@@ -556,11 +557,20 @@ int main(int argc, char **argv) {
         } else if(strcmp("-ptyn", arg)==0 && param != NULL) {
             i++;
             ptyn = param;
-        } 
+        } else if(strcmp("-rts", arg)==0 && param != NULL) {
+            i++;
+            if (strcmp(param, "B") == 0) {
+                rt_channel_mode = 1;
+            } else if (strcmp(param, "AB") == 0) {
+                rt_channel_mode = 2;
+            } else if (strcmp(param, "A") != 0) {
+                fatal("Invalid RTS value. Use 'A', 'B' or 'AB'.\n");
+            }
+        }
     else {
         fatal("Unrecognised argument: %s.\n"
         "Syntax: pi_fm_rds [-freq freq] [-audio file] [-ppm ppm_error] [-pi pi_code]\n"
-        "                  [-ps ps_text] [-rt rt_text] [-ctl control_pipe] [-ecc code] [-pty code] [-tp 0|1] [-ta 0|1] [-ms M|S] [-di SACD] [-lic code] [-pin DD,HH,MM] [-ptyn ptyn_text]\n", arg);
+        "                  [-ps ps_text] [-rt rt_text] [-ctl control_pipe] [-ecc code] [-pty code] [-tp 0|1] [-ta 0|1] [-ms M|S] [-di SACD] [-lic code] [-pin DD,HH,MM] [-ptyn ptyn_text] [-rts A|B|AB]\n", arg); // <-- ОБНОВИТЬ СПРАВКУ
     }
 }
 
@@ -586,7 +596,12 @@ printf("DI set to: S(%d) A(%d) C(%d) D(%d)\n", (di_flags & 1) > 0, (di_flags & 2
 if(pin_day != -1) printf("PIN set to: Day %d, %02d:%02d\n", pin_day, pin_hour, pin_minute);
 if(ptyn) printf("PTYN set to: \"%s\"\n", ptyn);
 
-int errcode = tx(carrier_freq, audio_file, pi, ps, rt, ptyn, pty, tp_flag, ta_flag, ms_flag, di_flags, ppm, control_pipe, lic_val, pin_day, pin_hour, pin_minute);
+const char* rts_mode_str = "A";
+if (rt_channel_mode == 1) rts_mode_str = "B";
+else if (rt_channel_mode == 2) rts_mode_str = "AB";
+printf("RTS set to: %s\n", rts_mode_str);
+
+int errcode = tx(carrier_freq, audio_file, pi, ps, rt, ptyn, pty, tp_flag, ta_flag, ms_flag, di_flags, ppm, control_pipe, lic_val, pin_day, pin_hour, pin_minute, rt_channel_mode);
 
 terminate(errcode);
 }

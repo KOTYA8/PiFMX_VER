@@ -22,7 +22,7 @@ Original repository: [PiFmRds](https://github.com/ChristopheJacquet/PiFmRds)
 * **PTYN** - Programme Type Name. (8 characters: `XXXXXXXX`)  
 * **DI(A,C,D)** - Decoder Identification (Stereo, Artifical Head, Compressed, Dynamic PTY). Example: `S/SA/SD/SC/A/AC/AD/C/CA/CD/D/ACD/ACDS`  
 * **EON** - Enhanced Other Networks Information. (PI,PS,AF,MF,LI,PTY,TP,TA,PIN). Example⚠️: `D392,WDR 2   ,102.1 88.5 90.5,87.6 92.1,0000,10,ON,OFF,022254` or `file` 
-* **CT** - Clock Time. Changing the time zone. Example: `-1, +3, +9:30`  
+* **CT** - Clock Time. Changing the time zone. Example: `-1, +3, +9:30`
 
 ### RDS2
 * **Long PS** - Long Programme Service Name (`32 characters`)
@@ -31,6 +31,14 @@ Original repository: [PiFmRds](https://github.com/ChristopheJacquet/PiFmRds)
 ### RDS Applications
 * **TMC** - Traffic Message Channel. Example: `0/1`
 * **ODA** - Open Data Applications. (Cross referencing DAB within RDS, CD46: RDS-TMC: ALERT-C, 4BD7: RadioText Plus / RT+ for group 2A RT). Example: `I don’t know how many of them are`
+
+# Functions GLOBAL
+* **SOUND MODE** - FM output to **Stereo** or **Mono**
+* **FREQUENCY** - increase to **64 MHz**  
+* **RDS POWER** - RDS signal level  
+* **FM POWER** - Power issued by Raspberry Pi for FM  
+* **CHANGE GPIO** - Change of Pin output for the antenna  
+* **CONTROL OVER RDS GROUPS** - It will be possible to control the speed of changing RDS groups
 
 # Development Statuses (RDS functions) (global and rds_ctl)
 **PI** (`-pi`) **GLOBAL** - ✅ realized  
@@ -45,8 +53,8 @@ Original repository: [PiFmRds](https://github.com/ChristopheJacquet/PiFmRds)
 **RT** (`-rt`) **GLOBAL** - ✅ realized  
 **RT** (`RT`) **RDS_CTL** - ✅ realized  
 
-**RT(A/B)** (`-rts`) **GLOBAL** - ❌ not realized  
-**RT(A/B)** (`RTS`) **RDS_CTL** - ❌ not realized
+**RT(A/B)** (`-rts`) **GLOBAL** - ✅ realized  
+**RT(A/B)** (`RTS`) **RDS_CTL** - ✅ realized
 
 **RT+** (`-rtp`) **GLOBAL** - ❌ not realized  
 **RT+** (`RTP`) **RDS_CTL** - ❌ not realized  
@@ -102,11 +110,12 @@ Original repository: [PiFmRds](https://github.com/ChristopheJacquet/PiFmRds)
 **ODA** (`-oda`) **GLOBAL** - ❌ not realized  
 
 # Development Statuses (Global functions)
-**MONO** (`-mn`) - Conclusion in mono sound - ❌ not realized  
-**FREQUENCY** (`-freq`) - increase to **64 MHz** - ❌ not realized  
-**RDS POWER** (`-rdsp`) - RDS signal level - ❌ not realized  
-**FM POWER** (`-fmp`) - Power issued by Raspberry Pi for FM - ❌ not realized  
-**CHANGE GPIO** (`-gpio`) - Change of Pin output for the antenna - ❌ not realized  
+**SOUND MODE** (`-sm`) - ❌ not realized  
+**FREQUENCY** (`-freq`) - ❌ not realized  
+**RDS POWER** (`-rdsp`) - ❌ not realized  
+**FM POWER** (`-fmp`) - ❌ not realized  
+**CHANGE GPIO** (`-gpio`) - ❌ not realized  
+**CONTROL OVER RDS GROUPS** - ❌ not realized 
 
 # Installation 
 For continuous operation of the FM transmitter on the Raspberry Pi 4B, the following command is entered:  
@@ -135,7 +144,7 @@ sudo ./pi_fm_x
 # General Arguments
 By default the PS changes back and forth between `RPi-Live` and a sequence number, starting at `00000000`. The PS changes around one time per second.  
 ```bash
-sudo ./pi_fm_x [-freq freq] [-audio file] [-ppm ppm_error] [-ctl] [-pi pi_code] [-ps ps_text] [-rt rt_text] [-ecc code] [-lic code] [-pty code] [-tp 0/1] [-ta 0/1] [-ms M/S] [-di S/SA/SD/SC/A/AC/AD/C/CA/CD/D/ACD,ACDS] [-pin XX,XX,XX] [-ptyn code]
+sudo ./pi_fm_x [-freq freq] [-audio file] [-ppm ppm_error] [-ctl] [-pi pi_code] [-ps ps_text] [-rt rt_text] [-ecc code] [-lic code] [-pty code] [-tp 0/1] [-ta 0/1] [-ms M/S] [-di S/SA/SD/SC/A/AC/AD/C/CA/CD/D/ACD,ACDS] [-pin XX,XX,XX] [-ptyn code] [-rts A/B/AB]
 ```
 All arguments are optional:  
 
@@ -150,12 +159,13 @@ All arguments are optional:
 * `-ctl` specifies a named pipe (FIFO) to use as a control channel to change PS and RT at run-time (see below).
   
 **RDS:**  
-
+  
 * `' ' or " "` can be used for additional characters (gap or prohibited symbols in the console). Example: `'hello'` -> `hello` or `" hello"` -> ` hello`  
   
 * `-pi` specifies the PI-code of the RDS broadcast. 4 hexadecimal digits. Example: `-pi FFFF`.  
 * `-ps` specifies the station name (Program Service name, PS) of the RDS broadcast. Limit: 8 characters. Example: `-ps RASP-PI`.  
-* `-rt` specifies the radiotext (RT) to be transmitted. Limit: 64 characters. Example: `-rt 'Hello, world!'`.  
+* `-rt` specifies the radiotext (RT) to be transmitted. Limit: 64 characters. Example: `-rt 'Hello, world!'`.
+* `-rts` specifies the switching of RT modes (A/B/AB). Example: `-rts A/B/AB`.  
 * `-ecc` specifies the country for the transmitter (Extended Country Code, ECC). Displayed through 2 characters, example: `-ecc E0`.  
 * `-lic` specifies the language speaking at the radio station (Language Identification Code, LIC). Displayed through 2 characters, example: `-lic 20`.  
 * `-pty` specifies the type of program for radio stations (Programme Type, PTY). Displayed through 1 or 2 characters, example: `-pty 10`.  
@@ -247,6 +257,7 @@ PI 0000
 PTY 10
 PS MyText
 RT A text to be sent as radiotext
+RTS A/B/AB
 TA OFF/ON
 TP OFF/ON
 ECC E0
@@ -265,4 +276,4 @@ I also have a special script that allows you to use different PS and RT modes:
 All previous versions are available in the repository: [PiFMX_VER](https://github.com/KOTYA8/PiFMX_VER)  
 
 ### **Currently**  
-* **V5** - Support **PTYN**. Management has appeared via `rds_ctl`: **PTYN**  
+* **V5** - Support **PTYN**, **RTS**. Management has appeared via `rds_ctl`: **PTYN, RTS**  

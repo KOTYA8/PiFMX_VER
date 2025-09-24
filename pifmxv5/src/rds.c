@@ -31,6 +31,8 @@ struct {
     int pin_enabled;
     int ptyn_enabled;
     int ptyn_second_segment_exists;
+    int rt_channel_mode;
+    int rt_ab_flag;
 } rds_params = {
     .pi = 0x1234, .ta = 0, .tp = 0, .ms = 1, .di_flags = 0,
     .ps = {0}, .rt = {0}, .ptyn = {0}, .pty = 0,
@@ -38,7 +40,9 @@ struct {
     .lic = 0, .lic_enabled = 0,
     .pin_day = 0, .pin_hour = 0, .pin_minute = 0, .pin_enabled = 0,
     .ptyn_enabled = 0,
-    .ptyn_second_segment_exists = 0
+    .ptyn_second_segment_exists = 0,
+    .rt_channel_mode = 0,
+    .rt_ab_flag = 0
 };
 
 /* The RDS error-detection code generator polynomial is
@@ -148,7 +152,15 @@ void get_rds_group(int *buffer) {
             uint16_t block1_base_other = (rds_params.tp ? 0x0400 : 0) | (rds_params.pty << 5);
 
             if (state == 4) { // Состояние 4 -> Группа 2A (RadioText)
-                blocks[1] = 0x2000 | block1_base_other | (rds_params.ta ? 0x10 : 0) | rt_state;
+                uint8_t ab_flag = 0;
+                if (rds_params.rt_channel_mode == 1) { // Канал B
+                    ab_flag = 1;
+                } else if (rds_params.rt_channel_mode == 2) { // Канал AB
+                    ab_flag = rds_params.rt_ab_flag; // Используем сохраненный флаг
+                }
+                // Для режима A (0), ab_flag остается 0
+
+                blocks[1] = 0x2000 | block1_base_other | (ab_flag << 4) | rt_state;
                 blocks[2] = rds_params.rt[rt_state*4+0]<<8 | rds_params.rt[rt_state*4+1];
                 blocks[3] = rds_params.rt[rt_state*4+2]<<8 | rds_params.rt[rt_state*4+3];
                 rt_state = (rt_state + 1) % 16;
@@ -248,6 +260,10 @@ void set_rds_pi(uint16_t pi_code) {
 }
 
 void set_rds_rt(char *rt) {
+    // Если включен режим AB, переключаем канал (A -> B -> A)
+    if (rds_params.rt_channel_mode == 2) {
+        rds_params.rt_ab_flag = !rds_params.rt_ab_flag;
+    }
     fill_rds_string(rds_params.rt, rt, 64);
 }
 
@@ -303,6 +319,12 @@ void set_rds_ptyn(char *ptyn) {
             rds_params.ptyn_second_segment_exists = 1;
             break;
         }
+    }
+}
+
+void set_rds_rt_channel(int mode) {
+    if (mode >= 0 && mode <= 2) {
+        rds_params.rt_channel_mode = mode;
     }
 }
 
