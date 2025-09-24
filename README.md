@@ -15,4 +15,4 @@ make
 * **V2** - Support **PTY**. You can also now set **TP** and **TA**. Management has appeared via `rds_ctl`: **PI, PTY, TP, ECC**  
 * **V3** - Support **MS**, **DI**. Management has appeared via `rds_ctl`: **MS, DI**
 * **V4** - Support **LIC**, **PIN**. Management has appeared via `rds_ctl`: **LIC, PIN** 
-* **V5** - Support **PTYN**. Management has appeared via `rds_ctl`: **PTYN** 
+* **V5** - Support **PTYN**, **RTS**. Management has appeared via `rds_ctl`: **PTYN, RTS**  
