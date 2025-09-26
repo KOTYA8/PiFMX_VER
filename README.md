@@ -17,4 +17,5 @@ make
 * **V4** - Support **LIC**, **PIN**. Management has appeared via `rds_ctl`: **LIC, PIN** 
 * **V5** - Support **PTYN**, **RTS**. Management has appeared via `rds_ctl`: **PTYN, RTS**  
 * **V6** - Support **RTP**. Now control **TP** and **TA** via **rds_ctl**: `0/1`. Management has appeared via `rds_ctl`: **RTP**  
-* **V7** - Support **RTM**, **CT**, **CTZ**. Management has appeared via `rds_ctl`: **RTM**, **CT**, **CTZ**   
+* **V7** - Support **RTM**, **CT**, **CTZ**. Management has appeared via `rds_ctl`: **RTM**, **CT**, **CTZ**
+* **V8** - Support **CTC**, **CTS**. Management has appeared via `rds_ctl`: **CTC**, **CTS**, **CT R**, **RTP 0** 
