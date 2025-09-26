@@ -46,6 +46,8 @@ struct {
     uint8_t rtp_item_toggle_bit;
     uint8_t rtp_item_running_bit;
     char rt_mode;
+    int ct_enabled;
+    int ct_offset_minutes;
 } rds_params = {
     .pi = 0x1234, .ta = 0, .tp = 0, .ms = 1, .di_flags = 0,
     .ps = {0}, .rt = {0}, .original_rt = {0}, .ptyn = {0}, .pty = 0,
@@ -60,7 +62,9 @@ struct {
     .rtp_enabled = 0,
     .rtp_item_toggle_bit = 0,
     .rtp_item_running_bit = 0,
-    .rt_mode = 'P'
+    .rt_mode = 'P',
+    .ct_enabled = 1,
+    .ct_offset_minutes = 0
 };
 
 /* The RDS error-detection code generator polynomial is
@@ -99,26 +103,49 @@ uint16_t crc(uint16_t block) {
 */
 int get_rds_ct_group(uint16_t *blocks) {
     static int latest_minutes = -1;
-    time_t now;
-    struct tm *utc;
-    now = time (NULL);
-    utc = gmtime (&now);
+    time_t now_t;
+    struct tm *utc_tm, *local_tm;
 
-    if(utc->tm_min != latest_minutes) {
-        latest_minutes = utc->tm_min;
-        int l = utc->tm_mon <= 1 ? 1 : 0;
-        int mjd = 14956 + utc->tm_mday +
-                        (int)((utc->tm_year - l) * 365.25) +
-                        (int)((utc->tm_mon + 2 + l*12) * 30.6001);
-        blocks[1] = 0x4400 | (mjd>>15);
-        blocks[2] = (mjd<<1) | (utc->tm_hour>>4);
-        blocks[3] = (utc->tm_hour & 0xF)<<12 | utc->tm_min<<6;
-        utc = localtime(&now);
-        int offset = utc->tm_gmtoff / (30 * 60);
-        blocks[3] |= abs(offset);
-        if(offset < 0) blocks[3] |= 0x20;
+    if (!rds_params.ct_enabled) {
+        return 0;
+    }
+
+    now_t = time(NULL);
+    utc_tm = gmtime(&now_t);
+
+    if (utc_tm->tm_min != latest_minutes) {
+        latest_minutes = utc_tm->tm_min;
+
+        // Время в пакете RDS всегда передается в UTC.
+        int l = utc_tm->tm_mon <= 1 ? 1 : 0;
+        int mjd = 14956 + utc_tm->tm_mday +
+                        (int)((utc_tm->tm_year - l) * 365.25) +
+                        (int)((utc_tm->tm_mon + 2 + l * 12) * 30.6001);
+
+        blocks[1] = 0x4400 | (mjd >> 15);
+        blocks[2] = (mjd << 1) | (utc_tm->tm_hour >> 4);
+        blocks[3] = (utc_tm->tm_hour & 0xF) << 12 | utc_tm->tm_min << 6;
+
+        // Смещение часового пояса вычисляется на основе системных настроек,
+        // к которому добавляется ручная корректировка из параметра -ctz.
+        local_tm = localtime(&now_t);
+        // tm_gmtoff - стандартное расширение в Linux, дает смещение в секундах.
+        int total_offset_minutes = (local_tm->tm_gmtoff / 60) + rds_params.ct_offset_minutes;
+
+        // Кодируем смещение в получасовых шагах, как того требует стандарт RDS.
+        int offset_sign = (total_offset_minutes < 0) ? 1 : 0;
+        int offset_val_abs = abs(total_offset_minutes);
+        int offset_code = (offset_val_abs / 30);
+
+        blocks[3] |= offset_code & 0x1F; // 5 бит для величины смещения
+        if (offset_sign) {
+            blocks[3] |= 0x20; // 1 бит для знака
+        }
+
         return 1;
-    } else return 0;
+    } else {
+        return 0;
+    }
 }
 
 void get_rds_group(int *buffer) {
@@ -311,6 +338,14 @@ void set_rds_rt_mode(char mode) {
 
 void set_rds_pi(uint16_t pi_code) {
     rds_params.pi = pi_code;
+}
+
+void set_rds_ct(int ct) {
+    rds_params.ct_enabled = ct;
+}
+
+void set_rds_ctz(int offset_minutes) {
+    rds_params.ct_offset_minutes = offset_minutes;
 }
 
 void set_rds_rt(char *rt) {

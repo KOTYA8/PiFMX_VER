@@ -8,6 +8,7 @@
 
 #include "rds.h"
 #include "control_pipe.h"
+#include <ctype.h>
 
 #define CTL_BUFFER_SIZE 100
 
@@ -221,7 +222,70 @@ int poll_control_pipe() {
     printf("RTM set to: %c\n", mode);
     fflush(stdout);
     return CONTROL_PIPE_RTM_SET;
-}
+    }
+    
+    if (strncmp(res, "CT ", 3) == 0) {
+        char *arg = res + 3;
+        int ct = atoi(arg);
+        set_rds_ct(ct);
+        printf("CT set to %s\n", ct ? "ON" : "OFF");
+        fflush(stdout);
+        return CONTROL_PIPE_CT_SET;
+    }
+
+    if (strncmp(res, "CTZ ", 4) == 0) {
+        char *arg = res + 4;
+        int sign = 1;
+
+        if (*arg == 'm' || *arg == 'M') {
+            sign = -1;
+            arg++;
+        } else if (*arg == 'p' || *arg == 'P') {
+            arg++;
+        } else {
+            printf("ERROR: Invalid CTZ format. Must start with 'p' or 'm'.\n");
+            fflush(stdout);
+            return -1;
+        }
+
+        if (strlen(arg) == 0) {
+            printf("ERROR: Invalid CTZ format. Missing hour/minute value.\n");
+            fflush(stdout);
+            return -1;
+        }
+
+        int hours = 0;
+        int minutes = 0;
+        char *colon = strchr(arg, ':');
+
+        for (char *c = arg; *c; c++) {
+            if (!isdigit(*c) && *c != ':') {
+                printf("ERROR: Invalid characters in CTZ value '%s'.\n", arg);
+                fflush(stdout);
+                return -1;
+            }
+        }
+
+        if (colon) {
+            *colon = '\0';
+            if (strlen(arg) > 0) hours = atoi(arg);
+            minutes = atoi(colon + 1);
+        } else {
+            hours = atoi(arg);
+        }
+
+        if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+            printf("ERROR: Invalid CTZ value. Hours (0-23) or minutes (0-59) out of range.\n");
+            fflush(stdout);
+            return -1;
+        }
+
+        int total_offset_minutes = sign * (hours * 60 + minutes);
+        set_rds_ctz(total_offset_minutes);
+        printf("CTZ set to: %c%d:%02d\n", sign > 0 ? 'p' : 'm', hours, minutes);
+        fflush(stdout);
+        return CONTROL_PIPE_CTZ_SET;
+    }
 
     // Если ни одна команда не подошла
     printf("ERROR: Unknown command '%s'\n", res);

@@ -19,6 +19,8 @@ extern void set_rds_pin(uint8_t day, uint8_t hour, uint8_t minute);
 extern void set_rds_ptyn(char *ptyn);
 extern void set_rds_rt_channel(int channel);
 extern void set_rds_rt_mode(char mode);
+extern void set_rds_ct(int ct);
+extern void set_rds_ctz(int offset_minutes);
 
 extern uint16_t get_rds_pi();
 extern uint8_t get_rds_pty();

@@ -13,6 +13,8 @@
 #define CONTROL_PIPE_RTS_SET 13
 #define CONTROL_PIPE_RTP_SET 14
 #define CONTROL_PIPE_RTM_SET 15
+#define CONTROL_PIPE_CT_SET 16
+#define CONTROL_PIPE_CTZ_SET 17
 
 extern int open_control_pipe(char *filename);
 extern int close_control_pipe();

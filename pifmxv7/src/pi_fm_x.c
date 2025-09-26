@@ -20,6 +20,7 @@
 #include "control_pipe.h"
 
 #include "mailbox.h"
+#include <ctype.h>
 #define MBFILE            DEVICE_FILE_NAME    /* From mailbox.h */
 
 #if (RASPI)==1
@@ -228,7 +229,7 @@ map_peripheral(uint32_t base, uint32_t len)
 #define DATA_SIZE 5000
 
 
-int tx(uint32_t carrier_freq, char *audio_file, uint16_t pi, char *ps, char *rt, char *ptyn, uint8_t pty, int tp, int ta, int ms, uint8_t di_flags, float ppm, char *control_pipe, int lic, int pin_day, int pin_hour, int pin_minute, int rt_channel_mode) {    // Catch all signals possible - it is vital we kill the DMA engine
+int tx(uint32_t carrier_freq, char *audio_file, uint16_t pi, char *ps, char *rt, char *ptyn, uint8_t pty, int tp, int ta, int ms, uint8_t di_flags, float ppm, char *control_pipe, int lic, int pin_day, int pin_hour, int pin_minute, int rt_channel_mode, int ct_flag, int ctz_offset_minutes) {    // Catch all signals possible - it is vital we kill the DMA engine
     // on process exit!
     for (int i = 0; i < 64; i++) {
         struct sigaction sa;
@@ -368,6 +369,8 @@ int tx(uint32_t carrier_freq, char *audio_file, uint16_t pi, char *ps, char *rt,
     char myps[9] = {0};
     set_rds_pi(pi);
     set_rds_rt(rt);
+    set_rds_ct(ct_flag);
+    set_rds_ctz(ctz_offset_minutes);
     set_rds_rt_channel(rt_channel_mode);
     set_rds_pty(pty);
     set_rds_tp(tp);
@@ -485,6 +488,8 @@ int main(int argc, char **argv) {
     int pin_day = -1, pin_hour = -1, pin_minute = -1;
     char *rtp = NULL;
     char rt_mode = 'P';
+    int ct_flag = 1;
+    int ctz_offset_minutes = 0;
 
     // Parse command-line arguments
     for(int i=1; i<argc; i++) {
@@ -571,55 +576,112 @@ int main(int argc, char **argv) {
         } else if(strcmp("-rtp", arg)==0 && param != NULL) {
             i++;
             rtp = param;
-} else if(strcmp("-rtm", arg)==0 && param != NULL) {
-    i++;
-    if (param[0] == 'P' && param[1] == '\0') {
-        rt_mode = 'P';
-    } else if (param[0] == 'A' && param[1] == '\0') {
-        rt_mode = 'A';
-    } else if (param[0] == 'D' && param[1] == '\0') {
-        rt_mode = 'D';
-    } else {
-        fatal("Invalid RTM value. Use 'P', 'A' or 'D'.\n");
+        } else if(strcmp("-rtm", arg)==0 && param != NULL) {
+            i++;
+            if (param[0] == 'P' && param[1] == '\0') {
+                rt_mode = 'P';
+            } else if (param[0] == 'A' && param[1] == '\0') {
+                rt_mode = 'A';
+            } else if (param[0] == 'D' && param[1] == '\0') {
+                rt_mode = 'D';
+            } else {
+                fatal("Invalid RTM value. Use 'P', 'A' or 'D'.\n");
+            }
+        } else if(strcmp("-ct", arg)==0 && param != NULL) {
+            i++;
+            ct_flag = atoi(param);
+            if (ct_flag < 0 || ct_flag > 1) fatal("Invalid CT value. Use 0 for OFF, 1 for ON.\n");
+        } else if(strcmp("-ctz", arg)==0 && param != NULL) {
+            i++;
+            char *arg_ctz = param;
+            int sign = 1;
+
+            if (*arg_ctz == 'm' || *arg_ctz == 'M') {
+                sign = -1;
+                arg_ctz++;
+            } else if (*arg_ctz == 'p' || *arg_ctz == 'P') {
+                arg_ctz++;
+            } else {
+                fatal("Invalid CTZ format: must start with 'p' or 'm'. Use e.g. p1, m2:30.\n");
+            }
+
+            if (strlen(arg_ctz) == 0) {
+                fatal("Invalid CTZ format: missing hour/minute value. Use e.g. p1, m2:30.\n");
+            }
+
+            int hours = 0;
+            int minutes = 0;
+            char *colon = strchr(arg_ctz, ':');
+            
+            // Проверяем, что в строке только цифры и не больше одного двоеточия
+            for (char *c = arg_ctz; *c; c++) {
+                if (!isdigit(*c) && *c != ':') {
+                    fatal("Invalid characters in CTZ value '%s'. Use only digits and one optional colon.\n", param);
+                }
+            }
+
+            if (colon) {
+                *colon = '\0';
+                if (strlen(arg_ctz) > 0) hours = atoi(arg_ctz);
+                minutes = atoi(colon + 1);
+            } else {
+                hours = atoi(arg_ctz);
+            }
+
+            if (hours < 0 || hours > 23) {
+                 fatal("Invalid hours in CTZ value: '%d'. Must be between 0 and 23.\n", hours);
+            }
+            if (minutes < 0 || minutes > 59) {
+                fatal("Invalid minutes in CTZ value: '%d'. Must be between 0 and 59.\n", minutes);
+            }
+
+            ctz_offset_minutes = sign * (hours * 60 + minutes);
+            } else {
+            fatal("Unrecognised argument: %s.\n"
+            "Syntax: pi_fm_x [-freq freq] [-audio file] [-ppm ppm_error] [-pi pi_code]\n"
+            "                [-ps ps_text] [-rt rt_text] [-rts A/B/AB] [-rtp tags] [-rtm P/A/D] [-ctl control_pipe] [-ecc code] [-lic code] [-pty code] [-tp 0/1] [-ta 0/1] [-ms M/S] [-di SACD] [-pin DD,HH,MM] [-ptyn ptyn_text] [-ct 0/1] [-ctz p|mH[:MM]]\n", arg);
+        }
     }
-        } else {
-        fatal("Unrecognised argument: %s.\n"
-        "Syntax: pi_fm_x [-freq freq] [-audio file] [-ppm ppm_error] [-pi pi_code]\n"
-        "                [-ps ps_text] [-rt rt_text] [-rts A/B/AB] [-rtp tags] [-rtm P/A/D] [-ctl control_pipe] [-ecc code] [-lic code] [-pty code] [-tp 0/1] [-ta 0/1] [-ms M/S] [-di SACD] [-pin DD,HH,MM] [-ptyn ptyn_text]\n", arg); // <-- ОБНОВИТЬ СПРАВКУ
-    }
-}
 
     // Set locale based on the environment variables. This is necessary to decode
     // non-ASCII characters using mbtowc() in rds_strings.c.
     char* locale = setlocale(LC_ALL, "");
     printf("Locale set to %s.\n", locale);
 
-if (ecc_str) {
-    uint8_t ecc_code = (uint8_t)strtol(ecc_str, NULL, 16);
-    // PI-код должен соответствовать коду страны. Первая цифра PI - это код страны.
-    // Например, для Испании (E) PI-код должен начинаться с E.
-    // Мы можем автоматически установить это.
-    set_rds_ecc(ecc_code);
-    printf("ECC set to: 0x%02X\n", ecc_code);
-}
-if(lic_val >= 0) printf("LIC set to: 0x%02X\n", lic_val);
-printf("PTY set to: %u\n", pty);
-printf("TP set to: %s\n", tp_flag ? "ON" : "OFF");
-printf("TA set to: %s\n", ta_flag ? "ON" : "OFF");
-printf("M/S set to: %s\n", ms_flag ? "Music" : "Speech");
-printf("DI set to: S(%d) A(%d) C(%d) D(%d)\n", (di_flags & 1) > 0, (di_flags & 2) > 0, (di_flags & 4) > 0, (di_flags & 8) > 0);
-if(pin_day != -1) printf("PIN set to: Day %d, %02d:%02d\n", pin_day, pin_hour, pin_minute);
-if(ptyn) printf("PTYN set to: \"%s\"\n", ptyn);
-
-const char* rts_mode_str = "A";
-if (rt_channel_mode == 1) rts_mode_str = "B";
-else if (rt_channel_mode == 2) rts_mode_str = "AB";
-printf("RTS set to: %s\n", rts_mode_str);
-
-set_rds_rt_mode(rt_mode);
-printf("RTM set to: %c\n", rt_mode);
-
-if(rtp) printf("RTP set to: \"%s\"\n", rtp);
+    if (ecc_str) {
+        uint8_t ecc_code = (uint8_t)strtol(ecc_str, NULL, 16);
+        // PI-код должен соответствовать коду страны. Первая цифра PI - это код страны.
+        // Например, для Испании (E) PI-код должен начинаться с E.
+        // Мы можем автоматически установить это.
+        set_rds_ecc(ecc_code);
+        printf("ECC set to: 0x%02X\n", ecc_code);
+    }
+    if(lic_val >= 0) printf("LIC set to: 0x%02X\n", lic_val);
+    printf("PTY set to: %u\n", pty);
+    printf("TP set to: %s\n", tp_flag ? "ON" : "OFF");
+    printf("TA set to: %s\n", ta_flag ? "ON" : "OFF");
+    printf("M/S set to: %s\n", ms_flag ? "Music" : "Speech");
+    printf("DI set to: S(%d) A(%d) C(%d) D(%d)\n", (di_flags & 1) > 0, (di_flags & 2) > 0, (di_flags & 4) > 0, (di_flags & 8) > 0);
+    if(pin_day != -1) printf("PIN set to: Day %d, %02d:%02d\n", pin_day, pin_hour, pin_minute);
+    if(ptyn) printf("PTYN set to: \"%s\"\n", ptyn);
+    
+    const char* rts_mode_str = "A";
+    if (rt_channel_mode == 1) rts_mode_str = "B";
+    else if (rt_channel_mode == 2) rts_mode_str = "AB";
+    printf("RTS set to: %s\n", rts_mode_str);
+    
+    set_rds_rt_mode(rt_mode);
+    printf("RTM set to: %c\n", rt_mode);
+    
+    if(rtp) printf("RTP set to: \"%s\"\n", rtp);
+    
+    printf("CT set to: %s\n", ct_flag ? "ON" : "OFF");
+    if (ctz_offset_minutes != 0) {
+        int sign = ctz_offset_minutes > 0 ? 1 : -1;
+        int hours = abs(ctz_offset_minutes) / 60;
+        int minutes = abs(ctz_offset_minutes) % 60;
+        printf("CTZ set to: %c%d:%02d\n", sign > 0 ? 'p' : 'm', hours, minutes);
+    }
 
     if (rtp) {
         if (!set_rds_rtp(rtp)) {
@@ -628,7 +690,7 @@ if(rtp) printf("RTP set to: \"%s\"\n", rtp);
     }
 
 
-int errcode = tx(carrier_freq, audio_file, pi, ps, rt, ptyn, pty, tp_flag, ta_flag, ms_flag, di_flags, ppm, control_pipe, lic_val, pin_day, pin_hour, pin_minute, rt_channel_mode);
+    int errcode = tx(carrier_freq, audio_file, pi, ps, rt, ptyn, pty, tp_flag, ta_flag, ms_flag, di_flags, ppm, control_pipe, lic_val, pin_day, pin_hour, pin_minute, rt_channel_mode, ct_flag, ctz_offset_minutes);
 
-terminate(errcode);
+    terminate(errcode);
 }

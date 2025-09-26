@@ -23,8 +23,10 @@
 * **PTYN** - Programme Type Name. Example (1 to 8 characters): `XXXXXXXX` 
 * **DI(A,C,D)** - Decoder Identification (Stereo, Artifical Head, Compressed, Dynamic PTY). Example: `S/SA/SD/SC/A/AC/AD/C/CA/CD/D/ACD/ACDS`  
 * **EON** - Enhanced Other Networks Information (PI,PS,AF,MF,LI,PTY,TP,TA,PIN). Example⚠️: `D392,WDR 2   ,102.1 88.5 90.5,87.6 92.1,0000,10,ON,OFF,022254` or `file`
-* **CT** - Clock Time. Example: `19:52,25.09.2025`
-* **CTZ** - Clock Time Zone. Example: `-1, +3, +9:30`
+* **CT** - Clock Time. Example: `0/1`  
+* **CTC** - Clock Time Custom. Example: `19:52,25.09.2025`  
+* **CTS** - Clock Time Still. Example: `19:52,25.09.2025`   
+* **CTZ** - Clock Time Zone. Example: `m1, m3, p9:30`  
 
 ### RDS2
 * **Long PS** - Long Programme Service Name - up to 32 byte with UTF-8 character set. (Indian, Chinese, Arabic, and more). Example: `32 characters` 
@@ -120,11 +122,17 @@
 **EON** (`-eon`) **GLOBAL** - ❌ not realized  
 **EON** (`EON`) **RDS_CTL** - ❌ not realized  
 
-**CT** (`-ct`) **GLOBAL** - ❌ not realized    
-**CT** (`CT`) **RDS_CTL** - ❌ not realized  
+**CT** (`-ct`) **GLOBAL** - ✅ realized    
+**CT** (`CT`) **RDS_CTL** - ✅ realized 
+
+**CTC** (`-ctc`) **GLOBAL** - ❌ not realized    
+**CTC** (`CTC`) **RDS_CTL** - ❌ not realized  
   
-**CTZ** (`-ctz`) **GLOBAL** - ❌ not realized    
-**CTZ** (`CTZ`) **RDS_CTL** - ❌ not realized  
+**CTS** (`-cts`) **GLOBAL** - ❌ not realized    
+**CTS** (`CTS`) **RDS_CTL** - ❌ not realized   
+    
+**CTZ** (`-ctz`) **GLOBAL** - ✅ realized    
+**CTZ** (`CTZ`) **RDS_CTL** - ✅ realized  
 
 ### RDS2
 
@@ -177,7 +185,7 @@ sudo ./pi_fm_x
 # General Arguments
 By default the PS changes back and forth between `RPi-Live` and a sequence number, starting at `00000000`. The PS changes around one time per second.  
 ```bash
-sudo ./pi_fm_x [-freq freq] [-audio file] [-ppm ppm_error] [-ctl control_pipe] [-pi pi_code] [-ps ps_text] [-rt rt_text] [-rts A/B/AB] [-rtp tags] [-rtm P/A/D] [-ecc code] [-lic code] [-pty code] [-tp 0/1] [-ta 0/1] [-ms M/S] [-di S/SA/SD/SC/A/AC/AD/C/CA/CD/D/ACD,SACD] [-pin DD,HH,MM] [-ptyn ptyn_text]
+sudo ./pi_fm_x [-freq freq] [-audio file] [-ppm ppm_error] [-ctl control_pipe] [-pi pi_code] [-ps ps_text] [-rt rt_text] [-rts A/B/AB] [-rtp tags] [-rtm P/A/D] [-ecc code] [-lic code] [-pty code] [-tp 0/1] [-ta 0/1] [-ms M/S] [-di S/SA/SD/SC/A/AC/AD/C/CA/CD/D/ACD,SACD] [-pin DD,HH,MM] [-ptyn ptyn_text] [-ct 0/1] [-ctz p/mHH:MM]
 ```
 All arguments are optional:  
 
@@ -210,6 +218,8 @@ All arguments are optional:
 * `-di` specifies the flags of the supported radio stations (Decoder Identification, (Stereo, Artifical Head, Compressed, Dynamic PTY)). Displayed through 1 or 4 characters, example: `-di SACD`.
 * `-pin` specifies the identification of the program at the radio station (Programme Item Number) (Date: 01-31, Hours: 00-23, Minutes: 00-59). Displayed through 5 or 8 characters, example: `-pin 1,12,22`.
 * `-ptyn` specifies the indicates an additional description at the radio station (Programme Type Name). Displayed through 1 or 8 characters, example: `-ptyn 12345678`.
+* `-ct` specifies the turns on and off the time (Clock Time). Displayed through 1 characters, example: `-ct 1`.  
+* `-ctz` specifies the change in the temporary zone (Clock Time Zone). Displayed through 2 or 6 characters, example: `-ctz p1`.  
 
 ### Clock calibration (only if experiencing difficulties)
 
@@ -303,7 +313,8 @@ DI 0/S/SA/SD/SC/A/AC/AD/C/CA/CD/D/ACD/ACDS
 MS M/S
 PIN 1,12,20
 PTYN 12345678
-
+CT 0/1
+CTZ m1:30
 ```
 
 ### PS and RT modes (rds_ctl)
@@ -314,4 +325,4 @@ I also have a special script that allows you to use different PS and RT modes:
 All previous versions are available in the repository: [PiFMX_VER](https://github.com/KOTYA8/PiFMX_VER)  
 
 ### **Currently**  
-* **V7** - Support **RTM**. Management has appeared via `rds_ctl`: **RTM**  
+* **V7** - Support **RTM**, **CT**, **CTZ**. Management has appeared via `rds_ctl`: **RTM**, **CT**, **CTZ**  
