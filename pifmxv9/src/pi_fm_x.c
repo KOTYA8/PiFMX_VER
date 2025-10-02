@@ -699,7 +699,7 @@ int main(int argc, char **argv) {
             "                [-ps ps_text] [-rt rt_text] [-rts A/B/AB] [-rtp tags] [-rtm P/A/D] [-ctl control_pipe]\n"
             "                [-ecc code] [-lic code] [-pty code] [-tp 0/1] [-ta 0/1] [-ms M/S] [-di SACD]\n"
             "                [-pin DD,HH,MM] [-ptyn ptyn_text] [-ct 0/1] [-ctz p|mH[:MM]] [-ctc H:M.D.M.Y] [-cts H:M.D.M.Y]\n"
-            "                [-afa 0|freq1 freq2 ...] [-afaf 0|1]\n", arg);
+            "                [-afa 0/freq1 freq2 ...] [-afaf 0/1]\n", arg);
         }
     }
 
