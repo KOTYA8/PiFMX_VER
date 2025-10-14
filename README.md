@@ -22,4 +22,4 @@ make
 * **V9** - Support **AFA**, **AFAF**. Management has appeared via `rds_ctl`: **AFA**, **AFAF**.
 * **V10** - Fixed **PTYN**. Management has appeared via `rds_ctl`: **ECC,LIC,PIN OFF**, **PTYNO**.
 * **V11** - Support **AFB**, **AFBF**. Fixed **AFA**. Management has appeared via `rds_ctl`: **AFB**, **AFBF**.      
-
+* **V12** - Support **PIO**, **PSO**, **RTO**. Management has appeared via `rds_ctl`: **PIO**, **PSO**, **RTO**.   
