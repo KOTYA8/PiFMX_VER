@@ -26,6 +26,8 @@
 #define CONTROL_PIPE_PIOFF_SET 26
 #define CONTROL_PIPE_PSOFF_SET 27
 #define CONTROL_PIPE_RTOFF_SET 28
+#define CONTROL_PIPE_RDSBUG_ON_SET 29
+#define CONTROL_PIPE_RDSBUG_OFF_SET 30
 
 extern int open_control_pipe(char *filename);
 extern int close_control_pipe();

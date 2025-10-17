@@ -34,6 +34,7 @@ If two or more frequencies: `"87.6,90.1 95.5,90.5r 90.6r|88,88.1,88.2r"` or `rds
 * **CTZ** - Clock Time Zone. `p` - plus, `m` - minus. Example: `m1, m3, p9:30`
 
 #### RDS_CTL
+* **RDS-BUG OFF** - Turn off RDS-BUG. Example: `OFF`
 * **RDS RESET** - ❌Resets to initial RDS. Example: `R`
 * **PI OFF/ON** - Turn off/on PI. Example: `PIOFF` or `PION`
 * **PS OFF/ON** - Turn off/on PS. Example: `PSOFF` or `PSON`
@@ -83,7 +84,7 @@ If two or more frequencies: `"87.6,90.1 95.5,90.5r 90.6r|88,88.1,88.2r"` or `rds
 * FFFF - `Dummy application` is a "dummy" or placeholder, usually for official purposes.  
 
 # Functions GLOBAL
-* **RDS-BUG** - (funny feature) - PI-Сode changes every time  
+* **RDS-BUG** - (funny feature) - PI-Сode changes every time
 * **RDS OFF/ON** - RDS off/on
 * **SOUND MODE** - FM output to **Stereo** or **Mono**
 * **FREQUENCY** - increase to **64 MHz**  
@@ -189,8 +190,10 @@ In the future, it will be optimized and placed, indicators for the transmitter a
 **ODA** (`ODA`) **RDS_CTL** - ❌ not realized  
 
 # Development Statuses (Global functions)
-**RDS-BUG** (`-rds-bug`) - ✅ realized  
-**RDS OFF/ON** (`-rds`) - ❌ not realized  
+**RDS-BUG** (`-rds-bug`) **GLOBAL** - ✅ realized    
+**RDS-BUG** (`RDS-BUG`) **RDS_CTL** - ✅ realized  
+**RDS RESET** (`-rdsr`) - ❌ not realized   
+**RDS OFF/ON** (`-rds`) - ❌ not realized   
 **SOUND MODE** (`-sm`) - ❌ not realized   
 **FREQUENCY** (`-freq`) - ❌ not realized  
 **RDS POWER** (`-rdsp`) - ❌ not realized  
@@ -348,6 +351,7 @@ You can use the named pipe to send “commands” to change RDS. For instance, i
 cat >rds_ctl
 ```
 ```
+RDS-BUG
 PI 0000
 PIOFF / PION
 PTY 10

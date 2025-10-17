@@ -443,6 +443,24 @@ int poll_control_pipe() {
         return CONTROL_PIPE_AFBF_SET;
     }
 
+    if (strncmp(res, "RDS-BUG ", 8) == 0 || strcmp(res, "RDS-BUG") == 0) {
+        char *arg = res + 7;
+        // Пропускаем пробелы после команды
+        while (*arg == ' ') arg++;
+
+        if (strcasecmp(arg, "OFF") == 0) {
+            set_rds_pi_random_mode(0);
+            printf("RDS-BUG mode disabled\n");
+            fflush(stdout);
+            return CONTROL_PIPE_RDSBUG_OFF_SET;
+        } else if (strcasecmp(arg, "ON") == 0 || *arg == '\0') { // "RDS-BUG ON" или просто "RDS-BUG"
+            set_rds_pi_random_mode(1);
+            printf("RDS-BUG mode enabled (random PI)\n");
+            fflush(stdout);
+            return CONTROL_PIPE_RDSBUG_ON_SET;
+        }
+    }
+
     // Если ни одна команда не подошла
     printf("ERROR: Unknown command '%s'\n", res);
     fflush(stdout);

@@ -752,6 +752,10 @@ void set_rds_pi_cyclic_mode(int enabled) {
 
 void set_rds_pi_random_mode(int enabled) {
     rds_params.pi_random_mode = enabled;
+    // Если режим выключается, восстанавливаем исходный PI
+    if (!enabled) {
+        rds_params.pi = rds_params.original_pi;
+    }
 }
 
 void set_rds_ps_enabled(int enabled) {
