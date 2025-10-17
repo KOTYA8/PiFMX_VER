@@ -83,7 +83,7 @@ If two or more frequencies: `"87.6,90.1 95.5,90.5r 90.6r|88,88.1,88.2r"` or `rds
 * FFFF - `Dummy application` is a "dummy" or placeholder, usually for official purposes.  
 
 # Functions GLOBAL
-* **RDS-BUG** - (fan function) - PI-Сode changes every time
+* **RDS-BUG** - (funny feature) - PI-Сode changes every time
 * **RDS OFF/ON** - RDS off/on
 * **SOUND MODE** - FM output to **Stereo** or **Mono**
 * **FREQUENCY** - increase to **64 MHz**  
@@ -234,7 +234,7 @@ All arguments are optional:
 * `-freq` specifies the carrier frequency (76 - 108 MHz). Example: `-freq 107.9`.  
 * `-audio` specifies an audio file to play as audio. The sample rate does not matter: PiFMX will resample and filter it. If a stereo file is provided, Pi-FM-RDS will produce an FM-Stereo signal. Example: `-audio sound.wav`. The supported formats depend on libsndfile. This includes WAV and Ogg/Vorbis (among others) but not MP3. Specify - as the file name to read audio data on standard input (useful for piping audio into Pi-FM-RDS, see below).
 * `-ppm` specifies your Raspberry Pi's oscillator error in parts per million (ppm), see below.
-* `-rds-bug` specifies to (fan function) - PI-Сode changes every time
+* `-rds-bug` specifies to (funny feature) - PI-Сode changes every time
    
 **Control RDS (remotely):**  
    
