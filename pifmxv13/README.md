@@ -189,7 +189,7 @@ In the future, it will be optimized and placed, indicators for the transmitter a
 **ODA** (`ODA`) **RDS_CTL** - ❌ not realized  
 
 # Development Statuses (Global functions)
-**RDS-BUG** (`-rds-bug`) - ✅ realized
+**RDS-BUG** (`-rds-bug`) - ✅ realized  
 **RDS OFF/ON** (`-rds`) - ❌ not realized  
 **SOUND MODE** (`-sm`) - ❌ not realized   
 **FREQUENCY** (`-freq`) - ❌ not realized  
