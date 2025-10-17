@@ -83,7 +83,7 @@ If two or more frequencies: `"87.6,90.1 95.5,90.5r 90.6r|88,88.1,88.2r"` or `rds
 * FFFF - `Dummy application` is a "dummy" or placeholder, usually for official purposes.  
 
 # Functions GLOBAL
-* **RDS-BUG** - (funny feature) - PI-Сode changes every time
+* **RDS-BUG** - (funny feature) - PI-Сode changes every time  
 * **RDS OFF/ON** - RDS off/on
 * **SOUND MODE** - FM output to **Stereo** or **Mono**
 * **FREQUENCY** - increase to **64 MHz**  
